@@ -3,7 +3,7 @@ from __future__ import with_statement
 
 import sys
 from optparse import OptionParser
-from squawk.query import Query
+from squawk.query import Query, query_replace_all
 from squawk.output import output_formats
 from squawk.parsers import parsers
 from squawk.sql import sql_parser
@@ -52,6 +52,7 @@ def main():
             sys.exit(1)
 
     source = combiner(files, parser)
+    sql = query_replace_all(sql, parser.all_fields())
     query = Query(sql)
 
     output = output_formats[options.format]
