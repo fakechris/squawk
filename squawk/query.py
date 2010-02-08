@@ -5,6 +5,12 @@ from functools import partial
 from squawk.aggregates import aggregate_functions
 from squawk.sql import sql_parser
 
+import re
+
+r = re.compile("^select\s+\*\s+from(.*)", re.I)
+def query_replace_all(sql, all_fields):
+    return r.sub(sql, "select %s from \1" % all_fields)
+
 OPERATOR_MAPPING = {
     '<>': '!=',
     '!=': '!=',
