@@ -10,6 +10,7 @@ log_re = re.compile(
     r" (?P<bytes>[^\s]+)"
     r'\s+"(?P<referrer>[^"]*)"'
     r'\s+"(?P<user_agent>[^"]*)"'
+	r'\s+(?P<user_cookie>\S+*)'
     r".*$")
 
 class ApacheAccessLogParser(object):
@@ -23,6 +24,9 @@ class ApacheAccessLogParser(object):
         for line in self.fp:
             m = log_re.match(line.strip())
             d = m.groupdict()
-            d['bytes'] = int(d['bytes'])
+            try:    
+                d['bytes'] = int(d['bytes'])
+            except:
+                d['bytes'] = 0
             d['status'] = int(d['status'])
             yield d
