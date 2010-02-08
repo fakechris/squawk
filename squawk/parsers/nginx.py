@@ -27,5 +27,6 @@ class AccessLogParser(object):
             d['status'] = int(d['status'])
             yield d
 
-    def all_fields(self):
+    @classmethod
+    def all_fields(cls):
         return "remote_addr, remote_user, time, request, status, bytes, referrer, user_agent"

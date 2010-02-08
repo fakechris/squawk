@@ -12,5 +12,6 @@ class CSVParser(object):
         for row in csv.DictReader(self.fp):
             yield dict((k.lower(), v) for k, v in row.items())
 
-    def all_fields(self):
+    @classmethod
+    def all_fields(cls):
         raise ",".join(csv.DictReader(self.fp).fieldnames)

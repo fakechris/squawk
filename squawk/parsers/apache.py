@@ -33,5 +33,6 @@ class CookieAccessLogParser(object):
             d['status'] = int(d['status'])
             yield d
 
-    def all_fields(self):
+    @classmethod
+    def all_fields(cls):
         return "remote_addr, remote_user, time, method, request, status, bytes, referrer, user_agent, user_cookie"
