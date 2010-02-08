@@ -104,9 +104,10 @@ class Aggregator(object):
         yield dict((c.name, c.value()) for c in columns)
 
 class Query(object):
-    def __init__(self, sql):
+    def __init__(self, sql, all_fields=[]):
         self.tokens = sql_parser.parseString(sql) if isinstance(sql, basestring) else sql
         self.columns = []
+        self.all_fields = all_fields		
         self._table_subquery = None
         self._parts = self._generate_parts()
 
@@ -115,8 +116,12 @@ class Query(object):
         tokens = self.tokens
         parts = []
 
-        self.columns = [self._column_builder(c)().name for c in tokens.columns]
-
+        try:
+            self.columns = [self._column_builder(c)().name for c in tokens.columns]
+        except:			
+            if len(tokens.columns)==1 and tokens.columns[0]=='*':
+                self.columns = self.all_fields
+				
         if not isinstance(tokens.tables[0][0], basestring):
             self._table_subquery = Query(tokens.tables[0][0])
 

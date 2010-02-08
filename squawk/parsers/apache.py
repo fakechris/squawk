@@ -5,7 +5,9 @@ log_re = re.compile(
     r" -"
     r" (?P<remote_user>[^\s]+)"
     r" \[(?P<time>[^\]]+)\]"
-    r'\s+"(?P<request>[^"]*)"'
+    r'\s+"(?P<method>\w{3,4}) '
+    r'(?P<request>[^ ]+)'    
+	r' [^"]+"'	
     r" (?P<status>[^\s]+)"
     r" (?P<bytes>[^\s]+)"
     r'\s+"(?P<referrer>[^"]*)"'
@@ -30,3 +32,6 @@ class CookieAccessLogParser(object):
                 d['bytes'] = 0
             d['status'] = int(d['status'])
             yield d
+
+    def all_fields(self):
+        return "remote_addr, remote_user, time, method, request, status, bytes, referrer, user_agent, user_cookie"

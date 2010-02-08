@@ -26,3 +26,6 @@ class AccessLogParser(object):
             d['bytes'] = int(d['bytes'])
             d['status'] = int(d['status'])
             yield d
+
+    def all_fields(self):
+        return "remote_addr, remote_user, time, request, status, bytes, referrer, user_agent"
