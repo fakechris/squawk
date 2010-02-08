@@ -1,4 +1,4 @@
-import re
+import re, time
 
 log_re = re.compile(
     r'^(?P<remote_addr>\S+)'
@@ -26,6 +26,7 @@ class CookieAccessLogParser(object):
         for line in self.fp:
             m = log_re.match(line.strip())
             d = m.groupdict()
+            d['time'] = time.strftime("%Y-%m-%d %H:%M:%S", time.strptime(d['time'], '%d/%b/%Y:%H:%M:%S +0800'))
             try:    
                 d['bytes'] = int(d['bytes'])
             except:
