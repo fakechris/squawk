@@ -10,10 +10,10 @@ log_re = re.compile(
     r" (?P<bytes>[^\s]+)"
     r'\s+"(?P<referrer>[^"]*)"'
     r'\s+"(?P<user_agent>[^"]*)"'
-	r'\s+(?P<user_cookie>\S+*)'
+    r'\s+(?P<user_cookie>\S+)'
     r".*$")
 
-class ApacheAccessLogParser(object):
+class CookieAccessLogParser(object):
     def __init__(self, file):
         if isinstance(file, basestring):
             self.fp = open(file, "rb")
