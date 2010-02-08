@@ -67,14 +67,14 @@ class GroupBy(object):
     def __init__(self, source, group_by, columns):
         self.source = source
         self.group_by = group_by
-        self.columns = columns
+        self._columns = columns
 
     def __iter__(self):
         groups = {}
         for row in self.source:
             key = tuple(row[k] for k in self.group_by)
             if key not in groups:
-                groups[key] = [x() for x in self.columns]
+                groups[key] = [x() for x in self._columns]
             for s in groups[key]:
                 s.update(row)
         for key, row in groups.iteritems():
@@ -93,29 +93,32 @@ class Filter(object):
 class Selector(object):
     def __init__(self, source, columns):
         self.source = source
-        self.columns = [(n.lower(), (a or n).lower()) for n, a in columns]
+        self._columns = [(n.lower(), (a or n).lower()) for n, a in columns] if columns else None
 
     def __iter__(self):
-        for row in self.source:
-            yield dict((alias, row[name]) for name, alias in self.columns)
+        if self._columns:
+            for row in self.source:
+                yield dict((alias, row[name]) for name, alias in self._columns)
+        else:
+            for row in self.source:
+                yield row
 
 class Aggregator(object):
     def __init__(self, source, columns):
         self.source = source
-        self.columns = columns
+        self._columns = columns
 
     def __iter__(self):
-        columns = [c() for c in self.columns]
+        columns = [c() for c in self._columns]
         for row in self.source:
             for c in columns:
                 c.update(row)
         yield dict((c.name, c.value()) for c in columns)
 
 class Query(object):
-    def __init__(self, sql, all_fields=[]):
+    def __init__(self, sql):
         self.tokens = sql_parser.parseString(sql) if isinstance(sql, basestring) else sql
-        self.columns = []
-        self.all_fields = all_fields		
+        self.column_classes = None
         self._table_subquery = None
         self._parts = self._generate_parts()
 
@@ -124,11 +127,7 @@ class Query(object):
         tokens = self.tokens
         parts = []
 
-        try:
-            self.columns = [self._column_builder(c)().name for c in tokens.columns]
-        except:			
-            if len(tokens.columns)==1 and tokens.columns[0]=='*':
-                self.columns = self.all_fields
+        self.column_classes = [self._column_builder(c) for c in tokens.columns] if tokens.columns != '*' else None
 
         if not isinstance(tokens.tables[0][0], basestring):
             self._table_subquery = Query(tokens.tables[0][0])
@@ -140,14 +139,13 @@ class Query(object):
             # Group by query
             parts.append(partial(GroupBy,
                     group_by = [c[0] for c in tokens.groupby],
-                    columns = [self._column_builder(c) for c in tokens.columns]))
-        elif any(len(c.name)>1 for c in tokens.columns):
+                    columns = self.column_classes))
+        elif self.column_classes and any(len(c.name)>1 for c in tokens.columns):
             # Aggregate query
-            parts.append(partial(Aggregator,
-                columns = [self._column_builder(c) for c in tokens.columns]))
+            parts.append(partial(Aggregator, columns=self.column_classes))
         else:
             # Basic select
-            parts.append(partial(Selector, columns=[(c.name[0], c.alias) for c in tokens.columns]))
+            parts.append(partial(Selector, columns=[(c.name[0], c.alias) for c in tokens.columns] if tokens.columns != '*' else None))
         if tokens.orderby:
             order = tokens.orderby
             parts.append(partial(OrderBy, order_by=order[0][0], descending=order[1]=='DESC' if len(order) > 1 else False))
@@ -197,4 +195,5 @@ class Query(object):
         executor = self._table_subquery(source) if self._table_subquery else source
         for p in self._parts:
             executor = p(source=executor)
+        executor.columns = [c().name for c in self.column_classes] if self.column_classes else source.columns
         return executor

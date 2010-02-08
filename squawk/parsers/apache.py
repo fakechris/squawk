@@ -21,6 +21,8 @@ class CookieAccessLogParser(object):
             self.fp = open(file, "rb")
         else:
             self.fp = file
+        
+        self.columns = [x[0] for x in sorted(log_re.groupindex.items(), key=lambda g:g[1])]
 
     def __iter__(self):
         for line in self.fp:
@@ -34,6 +36,3 @@ class CookieAccessLogParser(object):
             d['status'] = int(d['status'])
             yield d
 
-    @classmethod
-    def all_fields(cls):
-        return "remote_addr, remote_user, time, method, request, status, bytes, referrer, user_agent, user_cookie"
