@@ -16,7 +16,6 @@ OPERATOR_MAPPING = {
     '>=': '>=',
 }
 
-
 r = re.compile("^select\s+\*\s+from(.*)", re.I)
 def query_replace_all(sql, all_fields):
     return r.sub(r"select %s from \1" % all_fields, sql)
@@ -130,7 +129,7 @@ class Query(object):
         except:			
             if len(tokens.columns)==1 and tokens.columns[0]=='*':
                 self.columns = self.all_fields
-				
+
         if not isinstance(tokens.tables[0][0], basestring):
             self._table_subquery = Query(tokens.tables[0][0])
 
