@@ -20,11 +20,24 @@ class Combiner(object):
         self.index = 0
         self.next_file()
 
+    def open_file(self, fname):
+        if fname.endswith(".gz"):
+            import gzip
+            return gzip.open(fname, "r")
+        elif fname.endswith(".bz2"):
+            import bz2
+            return bz2.BZ2File(fname, "r")
+        elif fname.endswith(".zip"):
+            import zipfile
+            return zipfile.ZipFile(fname, "r")
+        else:
+            return open(fname, "r")
+
     def next_file(self):
         if self.index >= len(self.files):
             raise StopIteration()
         fname = self.files[self.index]
-        self.parser = self.parser_class(sys.stdin if fname == '-' else open(fname, "r"))
+        self.parser = self.parser_class(sys.stdin if fname == '-' else self.open_file(fname))
         self.parser_iter = iter(self.parser)
         self.columns = self.parser.columns
         self.index += 1
@@ -47,6 +60,8 @@ def build_opt_parser():
                       help="name of parser for input")
     parser.add_option("-f", "--format", dest="format", default="tabular",
                       help="write output in FORMAT format", metavar="FORMAT")
+    #parser.add_option("-x", "--extract", dest="extract", 
+    #                  help="extract from compression format (zip, gz, bz2)")
     # parser.add_option("-q", "--quiet",
     #                   action="store_false", dest="verbose", default=True,
     #                   help="don't print status messages to stdout")
@@ -73,7 +88,6 @@ def main():
             sys.exit(1)
 
     source = Combiner(files, parser)
-    #sql = query_replace_all(sql, parser.all_fields())
     query = Query(sql)
 
     output = output_formats[options.format]
