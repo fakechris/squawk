@@ -27,9 +27,6 @@ class Combiner(object):
         elif fname.endswith(".bz2"):
             import bz2
             return bz2.BZ2File(fname, "r")
-        elif fname.endswith(".zip"):
-            import zipfile
-            return zipfile.ZipFile(fname, "r")
         else:
             return open(fname, "r")
 
