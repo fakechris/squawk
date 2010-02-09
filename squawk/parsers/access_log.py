@@ -1,7 +1,7 @@
 import re
 
 log_re = re.compile(
-    r'^"(?P<remote_addr>[^"]+)"'
+    r'^(?P<remote_addr>("[^"]+"|[^\s]+))'
     r" -"
     r" (?P<remote_user>[^\s]+)"
     r" \[(?P<time>[^\]]+)\]"
@@ -25,6 +25,10 @@ class AccessLogParser(object):
         for line in self.fp:
             m = log_re.match(line.strip())
             d = m.groupdict()
-            d['bytes'] = int(d['bytes'])
+            d['remote_addr'] = d['remote_addr'].replace('"', '')
+            try:
+                d['bytes'] = int(d['bytes'])
+            except ValueError:
+                d['bytes'] = 0
             d['status'] = int(d['status'])
             yield d
