@@ -1,17 +1,23 @@
 
 from sqlite3 import dbapi2 as sqlite
+import re
 
-#TODO:
-def sqlite_schema(table_name):
-    conn.execute('select sql from sqlite_master where type="table" and tbl_name="data"').fetchall()
+RE_SQL_CREATE = re.compile('^create\s+table\s+\w+\s+\(([^\)]+)\)$', re.I)
+
+# 'CREATE TABLE data (a,b,c,d)'
+def sqlite_schema(conn, table_name):
+    sql = 'select sql from sqlite_master where type="table" and tbl_name="%s"' % table_name
+    rs = conn.execute(sql).fetchall()
+    return RE_SQL_CREATE.findall(rs[0][0])[0].split(',')
 
 class SqliteReader(object):
-    def __init__(self, file, sql):
+    def __init__(self, file, tablename, sql):
         self.sql = sql
         self.conn = sqlite.connect(file)
         self.conn.text_factory = str
         self.conn.execute('pragma cache_size=100000')
         self.conn.execute('pragma synchronous=OFF')
+        self.columns = [x.lower() for x in sqlite_schema(self.conn, tablename)]
         
     def __del__(self):
         self.conn.close()
@@ -24,5 +30,5 @@ class SqliteReader(object):
             if not results:
                 break
             for r in results:
-                yield 
+                yield dict(zip(self.columns, r))
         cursor.close()

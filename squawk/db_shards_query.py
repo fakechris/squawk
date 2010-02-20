@@ -18,7 +18,7 @@ class DbShardsQuery(ShardsQuery):
             elif p.func not in [LimitOffset, GroupBy, OrderBy]:
                 assert not merge_executor
                 for i, source in enumerate(sources):           
-                    executors[i] = p(source=executors[i])            
+                    executors[i] = p(source=executors[i])
             else: # merge parts            
                 if not merge_executor:
                     merge_executor = Merge(executors)
