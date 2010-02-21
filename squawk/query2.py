@@ -83,7 +83,8 @@ class Aggregator2(object):
         for row in self.source:
             for c in columns:
                 c.update(row[self._idx[c.name]])
-        yield dict((c.name, c.value()) for c in columns)
+        yield tuple([c.value() for c in columns])
+        #yield dict((c.name, c.value()) for c in columns)
 
 class Query2(object):
     def __init__(self, sql, all_fields=None):

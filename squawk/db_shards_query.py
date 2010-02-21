@@ -1,7 +1,7 @@
 
 from shards_query import NotSubQuerySupportException, Merge
 from query import LimitOffset, Filter
-from query2 import Query2, GroupBy2, OrderBy2
+from query2 import Query2, GroupBy2, OrderBy2, Aggregator2
 
 class DbShardsQuery(Query2):
     def __init__(self, sql, all_fields=None):
@@ -16,7 +16,7 @@ class DbShardsQuery(Query2):
             # normal parts
             if p.func == Filter: # result set is already filtered by database sql engine 
                 continue
-            elif p.func not in [LimitOffset, GroupBy2, OrderBy2]:
+            elif p.func not in [LimitOffset, GroupBy2, OrderBy2, Aggregator2]:
                 assert not merge_executor
                 for i, source in enumerate(sources):           
                     executors[i] = p(source=executors[i])
