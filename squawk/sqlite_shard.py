@@ -3,13 +3,16 @@ from query2 import *
 from db_shards_query import *
 from parsers import *
 from squawk.sql2 import sql_parser
+import glob, os
 
 class SqliteShard(object):    
-    def __init__(self, files):
+    def __init__(self, files=None):
         self.conns = []
+        if not files:
+            files = [os.path.join(os.getcwd(),p1) for p1 in glob.glob("*") if not p1.endswith("-journal")]         
         for f in files:
-            self.conns.append(sql_conn(f))        
-            
+            self.conns.append(sql_conn(f))
+                                
     def __del__(self):
         for c in self.conns:
             c.close()
@@ -37,5 +40,7 @@ class SqliteShard(object):
         q, all_fields = self._query(sql)
         sources = [SqliteReader3(c, all_fields, sql) for c in self.conns]
         return q(sources)
-                
+
+    def fetch_all(self, sql):
+        return list(self.query(sql))
         
