@@ -13,7 +13,23 @@ class SqliteShard(object):
     def __del__(self):
         for c in self.conns:
             c.close()
-            
+    
+    def cols(self, sql):
+        tokens = sql_parser.parseString(sql)
+        all_fields = []
+        if tokens.columns == '*':
+            usePrefix = len(tokens.tables) > 1
+            for t in tokens.tables:
+                columns = sql_columns(self.conns[0], t[0])
+                if usePrefix:
+                    columns = ["%s.%s"%(t[0],c) for c in columns]
+                all_fields.extend(columns)
+        q = DbShardsQuery(sql, all_fields)
+        results = []
+        for c in q.column_classes:
+            results.append(c().name)
+        return results
+        
     def query(self, sql):
         tokens = sql_parser.parseString(sql)
         all_fields = []
