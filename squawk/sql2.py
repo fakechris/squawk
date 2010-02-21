@@ -36,8 +36,8 @@ tableName      = delimitedList(filename, ".", combine=True)
 subQuery       = Group(Suppress("(") + selectStmt + Suppress(")"))
 tableDef       = subQuery | tableName
 
-#tableNameList  = Group(delimitedList(Group(tableDef + aliasDef))) # Standard SQL table list
-tableNameList  = Group(delimitedList(Group(tableDef), ' ')) # Not standard SQL table list. Allow spaces to separate tables. Easier to use on command line.
+tableNameList  = Group(delimitedList(Group(tableDef + aliasDef))) # Standard SQL table list
+#tableNameList  = Group(delimitedList(Group(tableDef), ' ')) # Not standard SQL table list. Allow spaces to separate tables. Easier to use on command line.
 
 whereExpression = Forward()
 and_ = Keyword("and", caseless=True)
