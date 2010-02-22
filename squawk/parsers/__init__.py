@@ -9,8 +9,9 @@ parsers = dict(
     access_log = AccessLogParser,
     apache = AccessLogParser,
     apache2 = AccessLogParser,
-    nginx = AccessLogParser,
+    nginx = AccessLogParser,    
     csv = CSVParser,
+    cookie_log = CookieAccessLogParser,
     sqlite = SqliteReader,
     sqlite2 = SqliteReader2,
 )
