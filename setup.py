@@ -2,7 +2,8 @@
 
 from distutils.core import setup
 
-from squawk import __version__ as version
+import os
+execfile(os.path.join('squawk', 'version.py'))
 
 try:
     long_description = open("README.md").read()
@@ -11,7 +12,7 @@ except IOError:
 
 setup(
     name = 'squawk',
-    version = version,
+    version = VERSION,
     description = 'SQL query tool and library for static files',
     long_description = long_description,
     author = 'Samuel Stauffer',
@@ -20,7 +21,7 @@ setup(
     packages = ['squawk', 'squawk/parsers'],
     license = "BSD",
     scripts = ['bin/squawk'],
-    install_requires = ["pyparsing"],
+    requires = ["pyparsing"],
     classifiers = [
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
