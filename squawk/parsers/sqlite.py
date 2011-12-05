@@ -2,7 +2,7 @@
 from sqlite3 import dbapi2 as sqlite
 import re
 
-RE_SQL_CREATE = re.compile('^create\s+table\s+\w+\s+\(([^\)]+)\)$', re.I)
+RE_SQL_CREATE = re.compile('^create\s+table\s+\w+\s*\(([^\)]+)\)$', re.I)
 
 # 'CREATE TABLE data (a,b,c,d)'
 def sqlite_schema(conn, table_name):
